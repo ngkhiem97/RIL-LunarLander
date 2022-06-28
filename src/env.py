@@ -1,14 +1,24 @@
 import gym
-env = gym.make("LunarLander-v2")
-env.action_space.seed(42)
+from models import alexnet, agent
+from tensorflow.keras.optimizers import Adam
 
-env.reset()
+env = gym.make('ALE/SpaceInvaders-v5')
+# env.action_space.seed(42)
 
-for _ in range(1000):
-    observation, reward, done, info = env.step(env.action_space.sample())
-    env.render()
+# episodes = 10
 
-    if done:
-        env.reset()
+# for episode in range(episodes):
+#     state = env.reset()
+#     done = False
+#     while not done:
+#         env.render()
+#         action = env.action_space.sample()
+#         state, reward, done, info = env.step(action)
 
-env.close()
+# env.close()
+
+height, width, channels = env.observation_space.shape
+model = alexnet.build_model(height, width, channels, env.action_space.n)
+agent = agent.build_agent(model, env.action_space.n)
+agent.compile(Adam(lr=1e-3))
+agent.fit(env, nb_steps=10000, visualize=True, verbose=1)
